@@ -96,7 +96,7 @@
     <main class="Container">
 
         <div class="Duck">
-            <img src="images/duck.png" alt="Security duck">
+            <img src="images/duck.png" alt="Security duck" id="duck-image">
         </div>
 
         <div class="Chat">
@@ -176,6 +176,16 @@
                                 const audioQuack = document.getElementById('audio-quack');
                                 audioQuack.play();
                             }, 400);
+
+                            setTimeout(function () {
+                                const duckImage = document.getElementById('duck-image');
+                                duckImage.src = 'images/duck-quack.png';
+                            }, 400);
+
+                            setTimeout(function () {
+                                const duckImage = document.getElementById('duck-image');
+                                duckImage.src = 'images/duck.png';
+                            }, 800);
                         }
 
                     } else {
