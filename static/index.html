@@ -118,7 +118,7 @@
 
         // Force focus on the input element.
         // I really hope this doesn't screw up mobile devices or something.
-        input.addEventListener('blur', function () {
+        document.body.addEventListener('click', function () {
             input.focus();
         });
 
