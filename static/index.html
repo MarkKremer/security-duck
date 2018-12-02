@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <title>We don't wing it - SecurityDuck security&#8482;</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta charset="UTF-8">
+
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css?family=Roboto+Mono:400,400i,700');
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+
+        .Container {
+            width: 90%;
+            max-width: 400px;
+            margin: auto;
+            padding: 5%;
+        }
+
+        .Duck {
+            padding: 20% 10% 6% 10%;
+        }
+
+        .Duck img {
+            max-width:100%;
+            max-height:100%;
+        }
+
+        .Chat {
+            font-family: 'Roboto Mono', monospace;
+        }
+
+        .Chat__text {
+            margin: 0;
+        }
+
+        .Chat__text--duck {
+            /*font-weight: bold;*/
+        }
+
+        .Chat__text--duck::before {
+            content: '> ';
+        }
+
+        .Chat__text--error {
+            color: darkred;
+        }
+
+        .Chat__text--input::before,
+        .Chat__text--you::before {
+            content: '< ';
+        }
+
+        .Chat__input {
+            width: 350px;
+            max-width: calc(100% - 50px);
+            border: none;
+            margin: -0.1em;
+            padding: 0.1em;
+            font-family: inherit;
+            font-size: inherit;
+            background: transparent;
+            outline: none;
+        }
+
+        .Chat__input::-webkit-input-placeholder {
+            font-style: italic;
+        }
+        .Chat__input:-moz-placeholder {
+            font-style: italic;
+        }
+        .Chat__input::-moz-placeholder {
+            font-style: italic;
+        }
+        .Chat__input:-ms-input-placeholder {
+            font-style: italic;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+
+</head>
+<body>
+
+    <main class="Container">
+
+        <div class="Duck">
+            <img src="images/duck.png" alt="Security duck">
+        </div>
+
+        <div class="Chat">
+            <p class="Chat__text Chat__text--duck"><b>Security duck has spotted you!</b></p>
+            <p class="Chat__text Chat__text--duck"><b>How do you proceed?</b></p>
+            <p class="Chat__text Chat__text--input">
+                <input type="text" placeholder="(type your response)" class="Chat__input" id="chat-input" autofocus>
+            </p>
+        </div>
+
+    </main>
+
+    <audio class="hidden" id="audio-quack">
+        <source src="audio/quack.mp3" type="audio/mpeg">
+    </audio>
+
+    <script type="text/javascript">
+        const input = document.getElementById('chat-input');
+
+        // Force focus on the input element.
+        // I really hope this doesn't screw up mobile devices or something.
+        input.addEventListener('blur', function () {
+            input.focus();
+        });
+
+        // Accept input.
+        input.addEventListener('keypress', function (evt) {
+            if(evt.keyCode !== 13) {
+                return;
+            }
+
+            send();
+        });
+
+        function send()
+        {
+            const message = input.value;
+            input.disabled = true;
+
+            // Send the message to the server.
+            const httpRequest = new XMLHttpRequest();
+            httpRequest.onreadystatechange = function(){
+                if (httpRequest.readyState === XMLHttpRequest.DONE) {
+                    const inputMessage = document.getElementsByClassName('Chat__text--input')[0];
+
+                    if (httpRequest.status === 200) {
+
+                        const response = JSON.parse(httpRequest.responseText);
+
+                        const yourOldMessage = document.createElement('p');
+                        yourOldMessage.classList.add('Chat__text');
+                        yourOldMessage.classList.add('Chat__text--you');
+                        yourOldMessage.innerText = message;
+                        inputMessage.parentNode.insertBefore(yourOldMessage, inputMessage);
+
+                        const responseMessage = document.createElement('p');
+                        responseMessage.classList.add('Chat__text');
+                        responseMessage.classList.add('Chat__text--duck');
+
+                        if(response.duckSays) {
+                            responseMessage.innerText = 'Security duck says: ';
+
+                            const duckMessage = document.createElement('b');
+                            duckMessage.innerText = response.text;
+                            responseMessage.appendChild(duckMessage);
+                        } else {
+                            responseMessage.innerText = response.text;
+                        }
+                        inputMessage.parentNode.insertBefore(responseMessage, inputMessage);
+
+                        input.value = '';
+                        input.disabled = false;
+                        input.focus();
+
+                        if(response.makeQuackSound) {
+                            setTimeout(function () {
+                                const audioQuack = document.getElementById('audio-quack');
+                                audioQuack.play();
+                            }, 400);
+                        }
+
+                    } else {
+
+                        const errorMessage = document.createElement('p');
+                        errorMessage.classList.add('Chat__text');
+                        errorMessage.classList.add('Chat__text--error');
+                        errorMessage.innerText = 'Something went wrong with the carrier pigeon delivering your message.';
+                        inputMessage.parentNode.insertBefore(errorMessage, inputMessage);
+
+                        input.disabled = false;
+                        input.focus();
+                    }
+                }
+            };
+            httpRequest.open('POST', '/converse', true);
+            httpRequest.send();
+        }
+    </script>
+
+</body>
+</html>
