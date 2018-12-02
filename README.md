@@ -1,4 +1,8 @@
 
+<p align="center">
+    <img src="static/images/duck.png" alt="Security duck"/>
+</p>
+
 # Run locally
 ```bash
 go run main.go
