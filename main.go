@@ -21,6 +21,9 @@ func newRouter() *mux.Router {
 	// Handle methods
 	r.HandleFunc("/converse", conversationHandler).Methods("POST")
 
+	// OAuth
+	handleOAuth(r)
+
 	// Serve /... to /static/...
 	staticFileDirectory := http.Dir("./static/")
 	staticFileHandler := http.FileServer(staticFileDirectory)
@@ -31,6 +34,8 @@ func newRouter() *mux.Router {
 
 func main() {
 	r := newRouter()
+
+	log.Println("Server is running at port 8080.")
 	err := http.ListenAndServe(":8080", r) // :80
 	if err != nil {
 		log.Fatal(err)

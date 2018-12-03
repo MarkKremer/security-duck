@@ -5,7 +5,7 @@
 
 # Run locally
 ```bash
-go run main.go
+go run main.go oauth.go
 ```
 
 # Docker
